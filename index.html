@@ -1,192 +1,849 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Phoenix Tools – Elixir Real-Time, LiveView, PubSub & Distributed System Utilities</title>
-
-<meta name="description" content="Explore Phoenix tools for Elixir developers: LiveView testing, PubSub systems, real-time apps, distributed systems, process monitoring, and fault-tolerant architectures.">
-
-<meta name="keywords" content="phoenix tools elixir, phoenix liveview tools, elixir pubsub tools, phoenix realtime apps, elixir distributed systems, phoenix process monitoring">
-
 <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+<meta name="robots" content="index, follow">
+
+<title>Phoenix Telemetry &amp; Tools – Elixir LiveView, PubSub &amp; Observability Utilities</title>
+
+<meta name="description" content="Phoenix telemetry systems, PubSub tools, and Elixir observability utilities. Learn how Phoenix telemetry works, instrument your application, and explore tools for LiveView, Channels, and distributed systems.">
+
+<meta name="keywords" content="phoenix telemetry systems, phoenix pubsub, phoenix channels, pubsub elixir, elixir telemetry, phoenix liveview tools, phoenix instrumentation, elixir observability, phoenix distributed systems, phoenix tools elixir">
+
+<link rel="canonical" href="https://franrivalbigprojects.github.io/phoenix-tools/">
+
+<meta property="og:title" content="Phoenix Telemetry Systems &amp; Elixir Tools">
+<meta property="og:description" content="Phoenix telemetry, PubSub, LiveView, and distributed system tools for Elixir developers.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-    margin: 0;
-    font-family: system-ui, Arial, sans-serif;
-    background: linear-gradient(135deg, #020617, #0f172a);
-    color: #e5e7eb;
+:root {
+  --bg: #04080f;
+  --surface: #080e1a;
+  --surface2: #0c1322;
+  --border: #111c2e;
+  --border2: #182840;
+  --elixir: #6e4aff;
+  --elixir-dim: rgba(110,74,255,0.1);
+  --elixir-dim2: rgba(110,74,255,0.05);
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,0.08);
+  --cyan-dim2: rgba(34,211,238,0.04);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.08);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.08);
+  --text: #b8cce0;
+  --text-muted: #3a5570;
+  --text-dim: #102030;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --r: 10px;
 }
 
-header {
-    text-align: center;
-    padding: 50px 20px;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HERO */
+.hero {
+  padding: 60px 0 48px;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 56px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 18px;
+  opacity: 0.8;
 }
 
 h1 {
-    font-size: 2.4rem;
-    margin-bottom: 10px;
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 14px;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
-h2 {
-    margin-top: 50px;
-    color: #22d3ee;
+h1 em { font-style: normal; color: var(--cyan); }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 620px;
+  line-height: 1.8;
+  margin-bottom: 24px;
 }
 
-main {
-    max-width: 1100px;
-    margin: auto;
-    padding: 20px;
+.hero-sub strong { color: var(--text); }
+
+.pill-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+.pill-cyan   { color: var(--cyan);   background: var(--cyan-dim2);   border-color: rgba(34,211,238,0.25); }
+.pill-purple { color: var(--elixir); background: var(--elixir-dim2); border-color: rgba(110,74,255,0.25); }
+.pill-dim    { color: var(--text-muted); border-color: var(--border2); }
+
+/* SECTION HEADERS */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-.card {
-    background: #020617;
-    border: 1px solid #1e293b;
-    padding: 20px;
-    border-radius: 14px;
-    transition: 0.3s ease;
+.sec-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+  white-space: nowrap;
+  opacity: 0.7;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    border-color: #22d3ee;
+.sec-rule { flex: 1; height: 1px; background: var(--border2); }
+
+/* TOOL CARDS */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 56px;
 }
 
-.card a {
-    color: #22d3ee;
-    font-weight: bold;
-    text-decoration: none;
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
-.card a:hover {
-    text-decoration: underline;
+.tool-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--elixir));
+  opacity: 0;
+  transition: opacity 0.2s;
 }
+
+.tool-card:hover {
+  border-color: rgba(34,211,238,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.tool-card:hover::after { opacity: 1; }
+
+.tc-path {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.tc-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.tc-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.tc-cta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: gap 0.2s;
+}
+
+.tc-cta::after { content: "→"; }
+.tool-card:hover .tc-cta { gap: 9px; }
+
+/* TELEMETRY SECTION */
+.telemetry-section {
+  margin-bottom: 56px;
+}
+
+.telemetry-intro {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 740px;
+  line-height: 1.85;
+  margin-bottom: 28px;
+}
+
+.telemetry-intro strong { color: var(--text); }
+.telemetry-intro code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--cyan);
+  background: var(--cyan-dim2);
+  border-radius: 3px;
+  padding: 1px 6px;
+  border: 1px solid rgba(34,211,238,0.15);
+}
+
+/* Event flow diagram */
+.event-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  margin-bottom: 28px;
+  padding: 20px 0;
+}
+
+.flow-node {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 12px 16px;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 130px;
+}
+
+.fn-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.fn-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--cyan);
+  font-weight: 500;
+}
+
+.flow-arrow {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--border2);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+
+/* Steps grid */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+
+.step-card:hover { border-color: rgba(34,211,238,0.2); }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cyan);
+  opacity: 0.4;
+  flex-shrink: 0;
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.step-body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.step-body p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.step-body p code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  background: var(--cyan-dim2);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Handlers table */
+.handlers-table {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.ht-head {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border2);
+  padding: 8px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  gap: 16px;
+}
+
+.ht-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border2);
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.ht-row:last-child { border-bottom: none; }
+.ht-row:hover { background: rgba(34,211,238,0.02); }
+
+.ht-event { font-family: var(--mono); font-size: 11px; color: var(--cyan); }
+.ht-meas  { color: var(--text-muted); font-family: var(--mono); font-size: 11px; }
+.ht-use   { color: var(--text-muted); font-size: 12px; }
+
+/* Dense Q&A */
+.dense-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 22px;
+  margin-bottom: 28px;
+}
+
+.dense-block p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.dense-block p:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.dense-block strong { color: var(--text); }
+.dense-block code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--cyan);
+  background: var(--cyan-dim2);
+  border-radius: 3px;
+  padding: 1px 6px;
+  border: 1px solid rgba(34,211,238,0.15);
+}
+
+/* FAQ */
+.faq-list {
+  margin-bottom: 56px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.faq-item { border-bottom: 1px solid var(--border2); }
+.faq-item:last-child { border-bottom: none; }
+
+.faq-q {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: none;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--sans);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+}
+
+.faq-q:hover { background: var(--cyan-dim2); }
+.faq-arrow { font-family: var(--mono); font-size: 11px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+.faq-a {
+  display: none;
+  padding: 0 18px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  border-top: 1px solid var(--border2);
+  background: var(--bg);
+}
+
+.faq-item.open .faq-a { display: block; }
+
+.faq-a code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  background: var(--cyan-dim2);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+/* TAGS */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 56px; }
+
+.tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 4px 12px;
+  cursor: default;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.tag:hover { color: var(--cyan); border-color: rgba(34,211,238,0.3); background: var(--cyan-dim2); }
 
 footer {
-    text-align: center;
-    padding: 40px;
-    background: #020617;
-    margin-top: 60px;
-    font-size: 0.9rem;
+  border-top: 1px solid var(--border2);
+  padding: 24px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+footer p { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin: 0; }
+
+@media (max-width: 640px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .event-flow { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .flow-arrow { transform: rotate(90deg); }
+  .ht-head, .ht-row { grid-template-columns: 1fr; }
 }
 </style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Phoenix Telemetry Systems and Elixir Tools",
+  "description": "Comprehensive guide to Phoenix telemetry systems in Elixir: how :telemetry events work, how to attach handlers, built-in Phoenix telemetry events, and tools for LiveView, PubSub, Channels, and distributed systems.",
+  "keywords": "phoenix telemetry systems, phoenix pubsub, pubsub elixir, phoenix channels, elixir telemetry"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Phoenix telemetry?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Phoenix telemetry is the observability layer built into the Phoenix framework using the Erlang :telemetry library. It emits structured events at key points in the request lifecycle — HTTP requests, LiveView mounts, channel joins, Ecto queries — that you can attach handlers to for metrics, logging, and tracing. Phoenix ships with built-in telemetry events under the [:phoenix] namespace."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Phoenix.PubSub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Phoenix.PubSub is the distributed publish-subscribe system built into Phoenix. It allows processes to subscribe to named topics and receive messages broadcast by any process in the cluster. PubSub backends include PG2 (BEAM process groups, single node) and Redis (multi-node). Phoenix Channels use PubSub internally to broadcast messages to all connected clients subscribed to a topic."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do Phoenix Channels differ from PubSub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Phoenix Channels are the WebSocket abstraction layer that sits on top of PubSub. Channels handle the client connection lifecycle (join, handle_in, handle_out, leave) and use PubSub internally to broadcast messages. PubSub is the lower-level message routing mechanism used by Channels, LiveView, and any Elixir process. Use Channels when you need WebSocket client connections; use PubSub directly for server-to-server or process-to-process messaging."
+      }
+    }
+  ]
+}
+</script>
 
 </head>
 
 <body>
+<div class="wrapper">
 
-<header>
-<h1>Phoenix Tools for Real-Time Elixir Applications & Distributed Systems</h1>
-<p>Powerful Phoenix and Elixir utilities for building scalable, fault-tolerant, real-time applications with LiveView, PubSub, and distributed architectures.</p>
+<!-- HERO -->
+
+<header class="hero">
+  <p class="hero-eyebrow">// Phoenix &amp; Elixir Developer Tools</p>
+  <h1><em>Phoenix Telemetry</em> Systems<br>&amp; Elixir Real-Time Tools</h1>
+  <p class="hero-sub">
+    Tools and guides for <strong>Phoenix telemetry</strong>, PubSub, LiveView, Channels, and distributed Elixir systems. Build observable, fault-tolerant real-time applications.
+  </p>
+  <div class="pill-row">
+    <span class="pill pill-cyan">Telemetry</span>
+    <span class="pill pill-cyan">PubSub</span>
+    <span class="pill pill-purple">LiveView</span>
+    <span class="pill pill-dim">Channels</span>
+    <span class="pill pill-dim">Distributed</span>
+    <span class="pill pill-dim">Elixir / OTP</span>
+  </div>
 </header>
 
-<main>
+<!-- TELEMETRY SECTION (main content for the keyword) -->
 
-<section>
-<h2>Core Phoenix Architecture Tools</h2>
+<section class="telemetry-section">
 
-<div class="grid">
+  <div class="sec-head">
+    <span class="sec-label">Phoenix Telemetry Systems</span>
+    <span class="sec-rule"></span>
+  </div>
 
-<div class="card">
-<p>
-phoenix-tools/channel/
-Manage and test Phoenix Channels for real-time communication systems.
-<a href="phoenix-tools/channel/">Phoenix Channel Tool</a>
-</p>
-</div>
+  <p class="telemetry-intro">
+    <strong>Phoenix telemetry systems</strong> are built on the Erlang <code>:telemetry</code> library — a lightweight, zero-dependency event dispatching mechanism. Phoenix emits telemetry events at every major lifecycle point: HTTP request start and stop, LiveView mount, socket connect, Ecto query execution, and channel joins. You attach handlers to these events to collect metrics, write structured logs, or send traces to observability backends like Prometheus, Datadog, or OpenTelemetry.
+  </p>
 
-<div class="card">
-<p>
-phoenix-tools/process/
-Analyze Elixir processes, concurrency behavior, and message passing.
-<a href="phoenix-tools/process/">Phoenix Process Tool</a>
-</p>
-</div>
+  <!-- Event flow -->
 
-<div class="card">
-<p>
-phoenix-tools/lifecycle/
-Understand request lifecycle and internal Phoenix pipeline execution.
-<a href="phoenix-tools/lifecycle/">Phoenix Lifecycle Tool</a>
-</p>
-</div>
+  <div class="event-flow">
+    <div class="flow-node">
+      <p class="fn-label">HTTP Request</p>
+      <p class="fn-name">[:phoenix,:endpoint]</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="fn-label">Router</p>
+      <p class="fn-name">[:phoenix,:router]</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="fn-label">Controller</p>
+      <p class="fn-name">[:phoenix,:controller]</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="fn-label">LiveView</p>
+      <p class="fn-name">[:phoenix,:live_view]</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="fn-label">Ecto Query</p>
+      <p class="fn-name">[:my_app,:repo]</p>
+    </div>
+  </div>
 
-</div>
+  <!-- How to instrument -->
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-num">01</span>
+      <div class="step-body">
+        <h3>Attach a telemetry handler</h3>
+        <p>Call <code>:telemetry.attach/4</code> with an event name, handler function, and optional config. Phoenix typically does this in your <code>Telemetry.ex</code> supervisor module generated by <code>mix phx.new</code>.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <span class="step-num">02</span>
+      <div class="step-body">
+        <h3>Use :telemetry_metrics for aggregation</h3>
+        <p>The <code>:telemetry_metrics</code> library defines metric types — <code>counter</code>, <code>sum</code>, <code>last_value</code>, <code>distribution</code> — that reporters like <code>TelemetryMetricsPrometheus</code> consume to expose a <code>/metrics</code> endpoint.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <span class="step-num">03</span>
+      <div class="step-body">
+        <h3>Built-in Phoenix events require no setup</h3>
+        <p>Phoenix emits <code>[:phoenix,:endpoint,:start]</code>, <code>[:phoenix,:endpoint,:stop]</code>, <code>[:phoenix,:live_view,:mount,:start]</code> and more automatically. Your handlers receive these without any additional instrumentation code.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <span class="step-num">04</span>
+      <div class="step-body">
+        <h3>Emit custom events with :telemetry.execute/3</h3>
+        <p>Call <code>:telemetry.execute([:my_app,:payment,:processed], %{duration: elapsed}, %{user_id: user_id})</code> to emit domain events. Any process with a matching handler attached receives the measurement and metadata maps.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Built-in events table -->
+
+  <div class="handlers-table">
+    <div class="ht-head">
+      <span>Event</span>
+      <span>Key Measurements</span>
+      <span>Common Use</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-event">[:phoenix,:endpoint,:stop]</span>
+      <span class="ht-meas">duration (native time)</span>
+      <span class="ht-use">HTTP request latency histogram</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-event">[:phoenix,:router_dispatch,:stop]</span>
+      <span class="ht-meas">duration, route</span>
+      <span class="ht-use">Per-route latency breakdown</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-event">[:phoenix,:live_view,:mount,:stop]</span>
+      <span class="ht-meas">duration, socket</span>
+      <span class="ht-use">LiveView mount performance</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-event">[:phoenix,:channel_joined]</span>
+      <span class="ht-meas">duration, socket</span>
+      <span class="ht-use">Channel join rate and latency</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-event">[:my_app,:repo,:query]</span>
+      <span class="ht-meas">total_time, query_time</span>
+      <span class="ht-use">Slow query detection via Ecto</span>
+    </div>
+  </div>
+
+  <!-- Q&A dense block -->
+
+  <div class="dense-block">
+    <p><strong>How does Phoenix telemetry differ from Logger?</strong><br>
+    <code>Logger</code> writes human-readable text to a log sink. <code>:telemetry</code> dispatches structured numeric measurements to attached handler functions. Telemetry is designed for metrics and tracing, not logging — although a handler can write to Logger. The key difference is that telemetry events are synchronous calls into handler functions that run in the emitting process, so handlers must be fast and non-blocking.</p>
+
+
+<p><strong>What is the Telemetry.ex module generated by Phoenix?</strong><br>
+When you run <code>mix phx.new</code>, Phoenix generates a <code>lib/my_app_web/telemetry.ex</code> supervisor module. This module starts telemetry reporter processes (like <code>TelemetryMetricsPrometheus</code>), defines the list of metrics to track using <code>:telemetry_metrics</code> functions, and attaches the handler that Phoenix uses to emit default request metrics. It is the central configuration point for your application's observability.</p>
+
+<p><strong>How do I integrate Phoenix telemetry with OpenTelemetry?</strong><br>
+Add <code>opentelemetry_phoenix</code> to your dependencies. It provides a <code>OpentelemetryPhoenix.setup/1</code> call that attaches handlers to Phoenix telemetry events and converts them to OpenTelemetry spans automatically. Ecto integration is provided by <code>opentelemetry_ecto</code>. This gives you distributed traces across HTTP requests, LiveView events, and database queries with no manual instrumentation.</p>
+
+
+  </div>
 
 </section>
 
-<section>
-<h2>Real-Time & Live Systems</h2>
+<!-- TOOL CARDS — ARCHITECTURE -->
 
-<div class="grid">
-
-<div class="card">
-<p>
-phoenix-tools/liveview/
-Test and optimize Phoenix LiveView rendering and state updates.
-<a href="phoenix-tools/liveview/">Phoenix LiveView Tool</a>
-</p>
+<div class="sec-head">
+  <span class="sec-label">Core Architecture Tools</span>
+  <span class="sec-rule"></span>
+</div>
+<div class="tools-grid">
+  <a class="tool-card" href="phoenix-tools/channel/">
+    <span class="tc-path">phoenix-tools/channel/</span>
+    <span class="tc-name">Phoenix Channel Tool</span>
+    <span class="tc-desc">Test and manage Phoenix Channels for real-time WebSocket communication. Understand message routing, channel lifecycle, and PubSub integration.</span>
+    <span class="tc-cta">Open Channel Tool</span>
+  </a>
+  <a class="tool-card" href="phoenix-tools/process/">
+    <span class="tc-path">phoenix-tools/process/</span>
+    <span class="tc-name">Phoenix Process Tool</span>
+    <span class="tc-desc">Analyze Elixir processes, concurrency behavior, and message passing patterns in Phoenix applications.</span>
+    <span class="tc-cta">Open Process Tool</span>
+  </a>
+  <a class="tool-card" href="phoenix-tools/lifecycle/">
+    <span class="tc-path">phoenix-tools/lifecycle/</span>
+    <span class="tc-name">Phoenix Lifecycle Tool</span>
+    <span class="tc-desc">Understand the Phoenix request pipeline, plug composition, and internal lifecycle execution order.</span>
+    <span class="tc-cta">Open Lifecycle Tool</span>
+  </a>
 </div>
 
-<div class="card">
-<p>
-phoenix-tools/realtime/
-Build and analyze real-time applications with event-driven updates.
-<a href="phoenix-tools/realtime/">Phoenix Realtime Tool</a>
-</p>
+<!-- TOOL CARDS — REALTIME -->
+
+<div class="sec-head">
+  <span class="sec-label">Real-Time &amp; Live Systems</span>
+  <span class="sec-rule"></span>
+</div>
+<div class="tools-grid">
+  <a class="tool-card" href="phoenix-tools/liveview/">
+    <span class="tc-path">phoenix-tools/liveview/</span>
+    <span class="tc-name">Phoenix LiveView Tool</span>
+    <span class="tc-desc">Test and optimize Phoenix LiveView rendering, diff calculation, and stateful socket updates.</span>
+    <span class="tc-cta">Open LiveView Tool</span>
+  </a>
+  <a class="tool-card" href="phoenix-tools/realtime/">
+    <span class="tc-path">phoenix-tools/realtime/</span>
+    <span class="tc-name">Phoenix Realtime Tool</span>
+    <span class="tc-desc">Build and analyze real-time event-driven applications with Phoenix presence and event sourcing.</span>
+    <span class="tc-cta">Open Realtime Tool</span>
+  </a>
+  <a class="tool-card" href="phoenix-tools/pubsub/">
+    <span class="tc-path">phoenix-tools/pubsub/</span>
+    <span class="tc-name">Phoenix PubSub Simulator</span>
+    <span class="tc-desc">Simulate and visualize Phoenix.PubSub topic subscriptions, message broadcasting, and multi-node delivery. Test pubsub patterns interactively.</span>
+    <span class="tc-cta">Open PubSub Simulator</span>
+  </a>
 </div>
 
-<div class="card">
-<p>
-phoenix-tools/pubsub/
-Monitor and debug PubSub messaging systems in distributed environments.
-<a href="phoenix-tools/pubsub/">Phoenix PubSub Tool</a>
-</p>
+<!-- TOOL CARDS — DISTRIBUTED -->
+
+<div class="sec-head">
+  <span class="sec-label">Distributed Systems &amp; Fault Tolerance</span>
+  <span class="sec-rule"></span>
+</div>
+<div class="tools-grid">
+  <a class="tool-card" href="phoenix-tools/distributed/">
+    <span class="tc-path">phoenix-tools/distributed/</span>
+    <span class="tc-name">Phoenix Distributed Tool</span>
+    <span class="tc-desc">Analyze distributed BEAM node communication, cluster topology, and cross-node message routing.</span>
+    <span class="tc-cta">Open Distributed Tool</span>
+  </a>
+  <a class="tool-card" href="phoenix-tools/fault/">
+    <span class="tc-path">phoenix-tools/fault/</span>
+    <span class="tc-name">Phoenix Fault Tolerance Tool</span>
+    <span class="tc-desc">Test supervisor strategies, process restart behaviors, and system resilience under failure conditions.</span>
+    <span class="tc-cta">Open Fault Tool</span>
+  </a>
 </div>
 
+<!-- FAQ -->
+
+<div class="sec-head">
+  <span class="sec-label">Frequently Asked Questions</span>
+  <span class="sec-rule"></span>
+</div>
+<div class="faq-list">
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">What are Phoenix telemetry systems?<span class="faq-arrow">&#9660;</span></button>
+    <div class="faq-a">Phoenix telemetry systems refer to the observability infrastructure built into Phoenix using the <code>:telemetry</code> Erlang library. Phoenix emits structured events at key lifecycle points (requests, LiveView mounts, channel joins) that handlers attach to for metrics collection, structured logging, and distributed tracing. The generated <code>Telemetry.ex</code> module in a Phoenix app configures these handlers.</div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">How does Phoenix.PubSub work?<span class="faq-arrow">&#9660;</span></button>
+    <div class="faq-a">Phoenix.PubSub is a distributed publish-subscribe system. Processes call <code>Phoenix.PubSub.subscribe/2</code> to receive messages on a topic and <code>Phoenix.PubSub.broadcast/3</code> to send to all subscribers. Internally it uses a backend (PG2 for single-node, Redis adapter for multi-node clusters). Phoenix Channels and LiveView use PubSub internally for message routing.</div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">What is the difference between Phoenix Channels and PubSub?<span class="faq-arrow">&#9660;</span></button>
+    <div class="faq-a">Phoenix Channels are the WebSocket abstraction that manages client connections — handling join, leave, and message callbacks. PubSub is the lower-level message routing system that Channels use internally. Use Channels when you need a WebSocket connection with client-facing API. Use PubSub directly for server-to-server or process-to-process communication without a WebSocket connection.</div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">How do I attach a custom telemetry handler in Phoenix?<span class="faq-arrow">&#9660;</span></button>
+    <div class="faq-a">Call <code>:telemetry.attach("my-handler", [:phoenix,:endpoint,:stop], &amp;MyHandler.handle/4, nil)</code> during application startup, typically in your <code>Telemetry.ex</code> module's <code>start_link/1</code> function. The handler receives the event name, measurements map, metadata map, and your config. Handlers run synchronously in the emitting process — keep them fast or offload work to a separate process.</div>
+  </div>
 </div>
 
-</section>
+<!-- TAGS -->
 
-<section>
-<h2>Distributed Systems & Fault Tolerance</h2>
-
-<div class="grid">
-
-<div class="card">
-<p>
-phoenix-tools/distributed/
-Analyze distributed node communication and cluster behavior.
-<a href="phoenix-tools/distributed/">Phoenix Distributed Tool</a>
-</p>
+<div class="tag-cloud">
+  <span class="tag">phoenix telemetry systems</span>
+  <span class="tag">phoenix.pubsub elixir</span>
+  <span class="tag">pubsub elixir</span>
+  <span class="tag">phoenix channels websocket</span>
+  <span class="tag">elixir liveview telemetry</span>
+  <span class="tag">opentelemetry phoenix</span>
+  <span class="tag">:telemetry.execute elixir</span>
+  <span class="tag">telemetry_metrics prometheus phoenix</span>
+  <span class="tag">phoenix instrumentation guide</span>
+  <span class="tag">elixir distributed systems tools</span>
+  <span class="tag">phoenix channel pubsub difference</span>
+  <span class="tag">ecto telemetry query events</span>
 </div>
-
-<div class="card">
-<p>
-phoenix-tools/fault/
-Test fault tolerance, recovery strategies, and system resilience.
-<a href="phoenix-tools/fault/">Phoenix Fault Tolerance Tool</a>
-</p>
-</div>
-
-</div>
-
-</section>
-
-</main>
 
 <footer>
-<p>Phoenix tools built for Elixir developers working with scalable, real-time, and fault-tolerant systems. Optimize performance, observability, and distributed communication.</p>
+  <div class="footer-inner">
+    <p>phoenix-telemetry &middot; elixir tools &middot; pubsub &middot; liveview</p>
+    <p>free &middot; no login &middot; github pages</p>
+  </div>
 </footer>
+
+</div>
+
+<script>
+function toggleFaq(btn) {
+  btn.parentElement.classList.toggle('open');
+}
+</script>
 
 </body>
 </html>
