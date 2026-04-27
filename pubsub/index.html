@@ -1,18 +1,1247 @@
-<html>
+<!DOCTYPE html>
+
+<html lang="en">
 <head>
-<meta charset='UTF-8'>
-<title>Phoenix PubSub System Analyzer</title>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<link rel='stylesheet' href='styles.css'>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+<meta name="robots" content="index, follow">
+
+<title>Phoenix PubSub Simulator – Elixir PubSub Topics, Subscribers &amp; Broadcast Tool</title>
+
+<meta name="description" content="Interactive Phoenix.PubSub simulator. Add subscribers to topics, broadcast messages, and visualize delivery in real time. Learn how Phoenix PubSub and pubsub elixir patterns work. Free, no install.">
+
+<meta name="keywords" content="phoenix pubsub, phoenix.pubsub, pubsub elixir, phoenix pubsub simulator, elixir pubsub topics, phoenix broadcast, phoenix pubsub example, elixir pubsub pattern, phoenix.pubsub subscribe, phoenix pubsub tutorial">
+
+<link rel="canonical" href="https://franrivalbigprojects.github.io/phoenix-tools/pubsub/">
+
+<meta property="og:title" content="Phoenix PubSub Simulator – Elixir PubSub Topics and Broadcast Tool">
+<meta property="og:description" content="Simulate Phoenix.PubSub: add subscribers, broadcast messages, and see delivery in real time. Learn pubsub elixir patterns interactively.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #04080f;
+  --surface: #080e1a;
+  --surface2: #0c1322;
+  --border: #111c2e;
+  --border2: #182840;
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,0.1);
+  --cyan-dim2: rgba(34,211,238,0.05);
+  --elixir: #6e4aff;
+  --elixir-dim: rgba(110,74,255,0.08);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.1);
+  --green-dim2: rgba(34,197,94,0.05);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.08);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.08);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.08);
+  --text: #b8cce0;
+  --text-muted: #3a5570;
+  --text-dim: #102030;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --r: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+header {
+  border-bottom: 1px solid var(--border2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(4,8,15,0.96);
+  backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan);
+  background: var(--cyan-dim2);
+  border: 1px solid rgba(34,211,238,0.25);
+  border-radius: 3px;
+  padding: 3px 9px;
+}
+
+.logo-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.logo-text strong { color: var(--cyan); font-weight: 500; }
+
+.back-link {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.back-link:hover { color: var(--cyan); }
+
+.wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  padding: 44px 0 32px;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 28px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  opacity: 0.8;
+}
+
+h1 {
+  font-size: clamp(20px, 3vw, 27px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1 em { font-style: normal; color: var(--cyan); }
+
+.hero-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 600px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.hero-sub strong { color: var(--text); }
+
+.pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.pill-cyan { color: var(--cyan); background: var(--cyan-dim2); border-color: rgba(34,211,238,0.25); }
+.pill-dim  { color: var(--text-muted); border-color: var(--border2); }
+
+/* SIMULATOR LAYOUT */
+.sim-shell {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.sim-topbar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border2);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topbar-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.btn-sm {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: opacity 0.15s;
+}
+
+.btn-sm:hover { opacity: 0.75; }
+.btn-cyan  { background: var(--cyan-dim2); color: var(--cyan); border-color: rgba(34,211,238,0.25); }
+.btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border2); }
+.btn-green { background: var(--green-dim2); color: var(--green); border-color: rgba(34,197,94,0.25); }
+
+.sim-body {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 480px;
+}
+
+/* CONTROL PANEL */
+.control-panel {
+  border-right: 1px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+}
+
+.cp-section {
+  padding: 14px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.cp-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.ps-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  transition: border-color 0.2s;
+  margin-bottom: 8px;
+}
+
+.ps-input:focus { outline: none; border-color: rgba(34,211,238,0.3); }
+.ps-input::placeholder { color: var(--text-dim); }
+
+.btn-add {
+  width: 100%;
+  padding: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--cyan-dim2);
+  color: var(--cyan);
+  border: 1px solid rgba(34,211,238,0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-add:hover { opacity: 0.75; }
+
+/* Topics list */
+.topics-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 200px;
+}
+
+.topic-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border2);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.topic-item:hover { background: var(--cyan-dim2); }
+.topic-item.active { background: var(--cyan-dim); }
+.topic-item:last-child { border-bottom: none; }
+
+.topic-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.topic-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topic-item.active .topic-name { color: var(--cyan); }
+
+.topic-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.topic-del {
+  font-size: 13px;
+  color: var(--red);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.topic-del:hover { opacity: 1; }
+
+/* Subscribers section */
+.subs-list {
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border2);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sub-item:last-child { border-bottom: none; }
+
+.sub-pid {
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.sub-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sub-del {
+  font-size: 12px;
+  color: var(--red);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.sub-del:hover { opacity: 1; }
+
+/* Broadcast panel */
+.broadcast-panel {
+  padding: 14px;
+}
+
+.btn-broadcast {
+  width: 100%;
+  padding: 9px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--cyan);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s;
+  margin-top: 8px;
+}
+
+.btn-broadcast:hover { opacity: 0.85; }
+
+/* VISUALIZATION */
+.viz-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.viz-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--surface2);
+  display: flex;
+  justify-content: space-between;
+}
+
+#vizCanvas {
+  flex: 1;
+  width: 100%;
+  min-height: 340px;
+  display: block;
+  background: var(--bg);
+}
+
+/* MESSAGE LOG */
+.log-panel {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.log-head {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border2);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+#messageLog {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.log-empty {
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.log-entry {
+  display: flex;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border2);
+  font-family: var(--mono);
+  font-size: 11px;
+  align-items: flex-start;
+}
+
+.log-entry:last-child { border-bottom: none; }
+
+.log-time { color: var(--text-dim); flex-shrink: 0; width: 60px; }
+.log-topic { color: var(--cyan); flex-shrink: 0; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-event { color: var(--text-muted); flex: 1; }
+.log-receivers { color: var(--green); flex-shrink: 0; }
+
+/* DIVIDER + CONTENT */
+hr.divider { border: none; border-top: 1px solid var(--border2); margin: 48px 0; }
+
+.content-section { margin-bottom: 48px; }
+
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: 0.7;
+  margin-bottom: 8px;
+  display: block;
+}
+
+h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--surface2);
+  color: var(--cyan);
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+}
+
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--cyan);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin: 12px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.ck { color: var(--elixir); }
+.cf { color: var(--cyan); }
+.cs { color: var(--green); }
+.cm { color: var(--text-dim); }
+
+.dense-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 22px;
+  margin-top: 14px;
+}
+
+.dense-block p {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.dense-block p:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.dense-block strong { color: var(--text); }
+
+.faq-list {
+  margin-top: 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.faq-item { border-bottom: 1px solid var(--border2); }
+.faq-item:last-child { border-bottom: none; }
+
+.faq-q {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: none;
+  padding: 13px 18px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--sans);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+  font-weight: 500;
+}
+
+.faq-q:hover { background: var(--cyan-dim2); }
+.faq-arrow { font-family: var(--mono); font-size: 11px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+.faq-a {
+  display: none;
+  padding: 0 18px 13px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  border-top: 1px solid var(--border2);
+  background: var(--bg);
+}
+
+.faq-item.open .faq-a { display: block; }
+
+footer { border-top: 1px solid var(--border2); padding: 20px 0; position: relative; z-index: 1; }
+
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+footer p { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin: 0; }
+
+@media (max-width: 680px) {
+  .sim-body { grid-template-columns: 1fr; }
+  .control-panel { border-right: none; border-bottom: 1px solid var(--border2); }
+}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Phoenix PubSub Simulator",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Interactive Phoenix.PubSub simulator for Elixir developers. Add subscribers to topics, broadcast messages, and visualize delivery in real time. Learn phoenix pubsub and pubsub elixir patterns without running Elixir locally.",
+  "featureList": "Phoenix PubSub simulation, topic subscription, message broadcast, delivery visualization, multi-topic support, subscriber management"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Phoenix.PubSub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Phoenix.PubSub is the distributed publish-subscribe system built into Phoenix Framework for Elixir. It allows processes to subscribe to named topics and receive messages broadcast to those topics. PubSub is used internally by Phoenix Channels and LiveView for real-time message delivery. It supports multiple backends including PG2 for single-node and Redis adapter for multi-node clusters."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you subscribe to a Phoenix PubSub topic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Call Phoenix.PubSub.subscribe(MyApp.PubSub, topic) where MyApp.PubSub is the name of your PubSub process started in your application supervisor, and topic is any string. The calling process receives messages sent to that topic as Elixir messages in its mailbox. Handle them with a receive block or handle_info callback in a GenServer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you broadcast a message with Phoenix PubSub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Call Phoenix.PubSub.broadcast(MyApp.PubSub, topic, message) to send a message to all subscribers of a topic. broadcast/3 sends from the current node only. broadcast_from/4 sends from a specific PID and excludes that PID from receiving the message — useful in Channels to avoid echoing a message back to the sender."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
+
 <body>
-<div class='container'>
-<h1>Phoenix PubSub System Analyzer</h1>
-<textarea id='input'></textarea>
-<input id='value' placeholder='Optional metric'>
-<button onclick='run()'>Run</button>
-<div id='res' class='result'></div>
+
+<header>
+  <div class="header-inner">
+    <span class="logo-pill">PubSub</span>
+    <span class="logo-text"><strong>phoenix.pubsub</strong> simulator</span>
+    <a href="../../" class="back-link">&larr; Phoenix Tools</a>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <section class="hero">
+    <p class="hero-eyebrow">// Phoenix.PubSub &amp; Elixir</p>
+    <h1><em>Phoenix PubSub</em> Simulator<br>Topic Subscriptions &amp; Broadcast</h1>
+    <p class="hero-sub">
+      Simulate <strong>Phoenix.PubSub</strong> topic subscriptions and message broadcasting. Add subscribers, broadcast messages, and see real-time delivery — learn pubsub elixir patterns interactively.
+    </p>
+    <div class="pill-row">
+      <span class="pill pill-cyan">Topics</span>
+      <span class="pill pill-cyan">Subscribers</span>
+      <span class="pill pill-dim">Broadcast</span>
+      <span class="pill pill-dim">Delivery Log</span>
+      <span class="pill pill-dim">Free &middot; No install</span>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+
+  <div class="sim-shell">
+    <div class="sim-topbar">
+      <span class="topbar-label">// Phoenix.PubSub Simulator</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm btn-green" onclick="loadPreset()">Load Preset</button>
+        <button class="btn-sm btn-ghost" onclick="resetSim()">Reset</button>
+      </div>
+    </div>
+
+
+<div class="sim-body">
+  <!-- Controls -->
+  <div class="control-panel">
+
+    <div class="cp-section">
+      <p class="cp-label">Topics</p>
+      <input class="ps-input" type="text" id="topicInput" placeholder="room:lobby">
+      <button class="btn-add" onclick="addTopic()">+ Add Topic</button>
+    </div>
+
+    <div class="topics-list" id="topicsList">
+      <div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);">No topics yet</div>
+    </div>
+
+    <div class="cp-section">
+      <p class="cp-label">Add Subscriber to selected topic</p>
+      <input class="ps-input" type="text" id="subNameInput" placeholder="UserSocket #1234">
+      <button class="btn-add" onclick="addSubscriber()">+ Subscribe</button>
+    </div>
+
+    <div class="subs-list" id="subsList">
+      <div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);">Select a topic first</div>
+    </div>
+
+    <div class="broadcast-panel">
+      <p class="cp-label">Broadcast Message</p>
+      <input class="ps-input" type="text" id="broadcastEvent" placeholder="user:joined">
+      <input class="ps-input" type="text" id="broadcastPayload" placeholder='%{user: "alice"}'>
+      <button class="btn-broadcast" onclick="doBroadcast()">broadcast/3</button>
+    </div>
+
+  </div>
+
+  <!-- Viz canvas -->
+  <div class="viz-panel">
+    <div class="viz-head">
+      <span>Topic &amp; Subscriber Graph</span>
+      <span id="vizStats" style="color:var(--text-dim);">0 topics</span>
+    </div>
+    <canvas id="vizCanvas"></canvas>
+  </div>
 </div>
-<script src='script.js'></script>
+
+
+  </div>
+
+  <!-- MESSAGE LOG -->
+
+  <div class="log-panel">
+    <div class="log-head">
+      <span>Delivery Log</span>
+      <span id="logCount" style="color:var(--text-dim);">0 broadcasts</span>
+    </div>
+    <div id="messageLog">
+      <div class="log-empty">Broadcast a message to see delivery log</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <section class="content-section">
+    <span class="section-eyebrow">// How Phoenix.PubSub works</span>
+    <h3>Phoenix PubSub &mdash; Elixir Publish-Subscribe Pattern</h3>
+    <p>
+      <code>Phoenix.PubSub</code> is the distributed message routing layer used by Phoenix Channels and LiveView. It dispatches messages from a publisher to all processes subscribed to a named topic. The classic usage pattern:
+    </p>
+
+
+<div class="code-block"><span class="cm"># 1. Start PubSub in your application supervisor</span>
+
+
+<span class="ck">children</span> = [
+{<span class="cf">Phoenix.PubSub</span>, name: <span class="cs">MyApp.PubSub</span>}
+]
+
+<span class="cm"># 2. Subscribe a process to a topic</span>
+<span class="cf">Phoenix.PubSub</span>.subscribe(<span class="cs">MyApp.PubSub</span>, <span class="cs">“room:lobby”</span>)
+
+<span class="cm"># 3. Broadcast to all subscribers</span>
+<span class="cf">Phoenix.PubSub</span>.broadcast(<span class="cs">MyApp.PubSub</span>, <span class="cs">“room:lobby”</span>, %{
+event: <span class="cs">“user_joined”</span>,
+user: <span class="cs">“alice”</span>
+})
+
+<span class="cm"># 4. Receive in subscriber’s handle_info</span>
+<span class="ck">def</span> handle_info(%{event: <span class="cs">“user_joined”</span>, user: user}, state) <span class="ck">do</span>
+<span class="cf">IO</span>.puts(<span class="cs">”#{user} joined”</span>)
+{:noreply, state}
+<span class="ck">end</span></div>
+
+
+<div class="dense-block">
+  <p><strong>What is the difference between broadcast/3 and broadcast_from/4?</strong><br>
+  <code>broadcast/3</code> sends a message to all subscribers of a topic including the calling process if it is subscribed. <code>broadcast_from/4</code> takes an explicit PID as the second argument and excludes that PID from receiving the message. In Phoenix Channels, <code>broadcast_from/4</code> is used to avoid echoing a message back to the user who sent it — the socket PID is excluded.</p>
+
+  <p><strong>How does Phoenix.PubSub handle multi-node clusters?</strong><br>
+  The default PubSub adapter (<code>Phoenix.PubSub.PG2</code>) uses Erlang process groups which are automatically distributed across all connected BEAM nodes. A broadcast on any node reaches subscribers on all nodes in the cluster. For non-BEAM clusters or when you need cross-datacenter delivery, <code>Phoenix.PubSub.Redis</code> uses Redis pub/sub as the transport layer. Configure the adapter in your application config.</p>
+
+  <p><strong>What happens if a subscriber process crashes?</strong><br>
+  When a subscribed process terminates, Phoenix.PubSub automatically removes it from the topic's subscriber list. There is no manual cleanup required. The PubSub system monitors subscriber PIDs and handles the unsubscription on process exit. This is one of the key advantages of building on the BEAM — process lifecycle management is handled by the runtime.</p>
+
+  <p><strong>How does Phoenix LiveView use PubSub?</strong><br>
+  LiveView sockets subscribe to PubSub topics in <code>mount/3</code> using <code>Phoenix.PubSub.subscribe/2</code> or the <code>Phoenix.LiveView.subscribe/2</code> helper. When a broadcast arrives, LiveView receives it in <code>handle_info/2</code> and can update assigns to trigger a re-render. This is the standard pattern for real-time collaborative features: one user's action broadcasts to a topic, all connected LiveView processes receive and re-render.</p>
+</div>
+
+
+  </section>
+
+  <hr class="divider">
+
+  <section class="content-section">
+    <span class="section-eyebrow">// FAQ</span>
+    <h3>Frequently Asked Questions &mdash; Phoenix PubSub</h3>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What is Phoenix.PubSub?<span class="faq-arrow">&#9660;</span></button>
+        <div class="faq-a">Phoenix.PubSub is the distributed publish-subscribe system in Phoenix Framework. Processes subscribe to named string topics and receive any message broadcast to those topics. It is used internally by Phoenix Channels and LiveView, and can be used directly for any inter-process messaging in Elixir applications.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How do you use Phoenix.PubSub in a GenServer?<span class="faq-arrow">&#9660;</span></button>
+        <div class="faq-a">In <code>init/1</code>, call <code>Phoenix.PubSub.subscribe(MyApp.PubSub, "my:topic")</code>. Then implement <code>handle_info/2</code> to handle incoming messages. The subscribed GenServer receives broadcasts as standard Elixir messages in its mailbox, processed by <code>handle_info</code> like any other message.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What is the pubsub elixir pattern?<span class="faq-arrow">&#9660;</span></button>
+        <div class="faq-a">The pubsub pattern in Elixir follows the same principle as other languages but benefits from the BEAM's lightweight processes. Publishers and subscribers are independent processes with no shared state. Topics are strings — any process can subscribe to any topic. The BEAM's message-passing model makes pubsub a natural fit: messages are immutable, delivery is asynchronous, and crashed subscribers are automatically cleaned up.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can Phoenix.PubSub work without Phoenix?<span class="faq-arrow">&#9660;</span></button>
+        <div class="faq-a">Yes. Phoenix.PubSub is a standalone library and can be used in any Elixir application without the full Phoenix framework. Add <code>{:phoenix_pubsub, "~> 2.0"}</code> to your <code>mix.exs</code> and start the PubSub process in your supervision tree. It is commonly used in Nerves IoT applications, pure Elixir services, and non-web Elixir backends.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <p>phoenix.pubsub simulator &middot; pubsub elixir &middot; free &middot; no install</p>
+    <p>topics &middot; subscribers &middot; broadcast &middot; phoenix channels</p>
+  </div>
+</footer>
+
+<script>
+// ─── STATE ───
+var topics = {};
+var activeTopic = null;
+var pidCounter = 1000;
+var broadcastCount = 0;
+var COLORS = ['#22d3ee','#a78bfa','#f97316','#22c55e','#f87171','#fbbf24'];
+
+function randomColor() {
+  return COLORS[Math.floor(Math.random() * COLORS.length)];
+}
+
+// ─── TOPICS ───
+function addTopic() {
+  var name = document.getElementById('topicInput').value.trim();
+  if (!name) return;
+  if (topics[name]) { selectTopic(name); return; }
+  topics[name] = { color: randomColor(), subscribers: [] };
+  document.getElementById('topicInput').value = '';
+  renderTopics();
+  selectTopic(name);
+  drawGraph();
+}
+
+function deleteTopic(name) {
+  delete topics[name];
+  if (activeTopic === name) activeTopic = null;
+  renderTopics();
+  renderSubs();
+  drawGraph();
+}
+
+function selectTopic(name) {
+  activeTopic = name;
+  renderTopics();
+  renderSubs();
+}
+
+function renderTopics() {
+  var list = document.getElementById('topicsList');
+  var keys = Object.keys(topics);
+  list.innerHTML = '';
+
+  if (!keys.length) {
+    list.innerHTML = '<div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);">No topics yet</div>';
+    document.getElementById('vizStats').textContent = '0 topics';
+    return;
+  }
+
+  document.getElementById('vizStats').textContent = keys.length + ' topic' + (keys.length !== 1 ? 's' : '');
+
+  keys.forEach(function(name) {
+    var t = topics[name];
+    var item = document.createElement('div');
+    item.className = 'topic-item' + (name === activeTopic ? ' active' : '');
+    item.onclick = function() { selectTopic(name); };
+
+    var dot = document.createElement('div');
+    dot.className = 'topic-dot';
+    dot.style.background = t.color;
+
+    var tname = document.createElement('span');
+    tname.className = 'topic-name';
+    tname.textContent = name;
+
+    var count = document.createElement('span');
+    count.className = 'topic-count';
+    count.textContent = t.subscribers.length;
+
+    var del = document.createElement('span');
+    del.className = 'topic-del';
+    del.textContent = '\u00d7';
+    del.onclick = function(e) { e.stopPropagation(); deleteTopic(name); };
+
+    item.appendChild(dot);
+    item.appendChild(tname);
+    item.appendChild(count);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+// ─── SUBSCRIBERS ───
+function addSubscriber() {
+  if (!activeTopic || !topics[activeTopic]) return;
+  var name = document.getElementById('subNameInput').value.trim();
+  if (!name) return;
+  var pid = '#PID<0.1.' + (pidCounter++) + '>';
+  topics[activeTopic].subscribers.push({ pid: pid, name: name });
+  document.getElementById('subNameInput').value = '';
+  renderTopics();
+  renderSubs();
+  drawGraph();
+}
+
+function removeSubscriber(topic, idx) {
+  topics[topic].subscribers.splice(idx, 1);
+  renderTopics();
+  renderSubs();
+  drawGraph();
+}
+
+function renderSubs() {
+  var list = document.getElementById('subsList');
+  list.innerHTML = '';
+
+  if (!activeTopic || !topics[activeTopic]) {
+    list.innerHTML = '<div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);">Select a topic first</div>';
+    return;
+  }
+
+  var subs = topics[activeTopic].subscribers;
+  if (!subs.length) {
+    list.innerHTML = '<div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);">No subscribers on this topic</div>';
+    return;
+  }
+
+  subs.forEach(function(sub, i) {
+    var item = document.createElement('div');
+    item.className = 'sub-item';
+
+    var pid = document.createElement('span');
+    pid.className = 'sub-pid';
+    pid.textContent = sub.pid.slice(0, 14) + '>';
+
+    var name = document.createElement('span');
+    name.className = 'sub-name';
+    name.textContent = sub.name;
+
+    var del = document.createElement('span');
+    del.className = 'sub-del';
+    del.textContent = '\u00d7';
+    del.onclick = (function(t, idx) { return function() { removeSubscriber(t, idx); }; })(activeTopic, i);
+
+    item.appendChild(pid);
+    item.appendChild(name);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+// ─── BROADCAST ───
+function doBroadcast() {
+  if (!activeTopic || !topics[activeTopic]) {
+    alert('Select a topic first.');
+    return;
+  }
+
+  var event = document.getElementById('broadcastEvent').value.trim() || 'message';
+  var payload = document.getElementById('broadcastPayload').value.trim() || '%{}';
+  var subs = topics[activeTopic].subscribers;
+  var now = new Date();
+  var timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+
+  broadcastCount++;
+  document.getElementById('logCount').textContent = broadcastCount + ' broadcast' + (broadcastCount !== 1 ? 's' : '');
+
+  // Add to log
+  var log = document.getElementById('messageLog');
+  var empty = log.querySelector('.log-empty');
+  if (empty) empty.remove();
+
+  var entry = document.createElement('div');
+  entry.className = 'log-entry';
+
+  var timeEl = document.createElement('span');
+  timeEl.className = 'log-time';
+  timeEl.textContent = timeStr;
+
+  var topicEl = document.createElement('span');
+  topicEl.className = 'log-topic';
+  topicEl.title = activeTopic;
+  topicEl.textContent = activeTopic;
+
+  var eventEl = document.createElement('span');
+  eventEl.className = 'log-event';
+  eventEl.textContent = event + ' ' + payload;
+
+  var recEl = document.createElement('span');
+  recEl.className = 'log-receivers';
+  recEl.textContent = subs.length + ' received';
+
+  entry.appendChild(timeEl);
+  entry.appendChild(topicEl);
+  entry.appendChild(eventEl);
+  entry.appendChild(recEl);
+  log.insertBefore(entry, log.firstChild);
+
+  // Animate nodes on canvas
+  animateBroadcast();
+}
+
+// ─── CANVAS GRAPH ───
+var animFrame = null;
+var animParticles = [];
+
+function drawGraph() {
+  var canvas = document.getElementById('vizCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.offsetWidth;
+  var H = canvas.offsetHeight || 340;
+  canvas.width = W;
+  canvas.height = H;
+
+  ctx.clearRect(0, 0, W, H);
+
+  var keys = Object.keys(topics);
+  if (!keys.length) {
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.fillStyle = '#102030';
+    ctx.textAlign = 'center';
+    ctx.fillText('Add topics to see the graph', W / 2, H / 2);
+    return;
+  }
+
+  var pubX = 60, pubY = H / 2;
+
+  // Draw PubSub node
+  ctx.beginPath();
+  ctx.arc(pubX, pubY, 22, 0, Math.PI * 2);
+  ctx.fillStyle = '#0c1322';
+  ctx.fill();
+  ctx.strokeStyle = '#22d3ee';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.fillStyle = '#22d3ee';
+  ctx.textAlign = 'center';
+  ctx.fillText('PubSub', pubX, pubY - 2);
+  ctx.fillText('Server', pubX, pubY + 9);
+
+  var topicSpacing = H / (keys.length + 1);
+
+  keys.forEach(function(tname, ti) {
+    var t = topics[tname];
+    var tx = 200;
+    var ty = topicSpacing * (ti + 1);
+    var isActive = tname === activeTopic;
+
+    // Line from pubsub to topic
+    ctx.beginPath();
+    ctx.moveTo(pubX + 22, pubY);
+    ctx.lineTo(tx - 30, ty);
+    ctx.strokeStyle = isActive ? t.color : '#182840';
+    ctx.lineWidth = isActive ? 1.5 : 1;
+    ctx.setLineDash(isActive ? [] : [4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Topic node
+    ctx.beginPath();
+    ctx.roundRect(tx - 30, ty - 16, 90, 32, 5);
+    ctx.fillStyle = isActive ? 'rgba(34,211,238,0.06)' : '#080e1a';
+    ctx.fill();
+    ctx.strokeStyle = isActive ? t.color : '#182840';
+    ctx.lineWidth = isActive ? 1.5 : 1;
+    ctx.stroke();
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillStyle = isActive ? t.color : '#3a5570';
+    ctx.textAlign = 'center';
+    ctx.fillText(tname.length > 12 ? tname.slice(0, 12) + '...' : tname, tx + 15, ty + 4);
+
+    // Subscribers
+    var subSpacing = Math.min(36, (H - 40) / Math.max(1, t.subscribers.length + 1));
+    var subStartY = ty - (t.subscribers.length - 1) * subSpacing / 2;
+
+    t.subscribers.forEach(function(sub, si) {
+      var sx = W - 80;
+      var sy = subStartY + si * subSpacing;
+
+      ctx.beginPath();
+      ctx.moveTo(tx + 60, ty);
+      ctx.lineTo(sx - 24, sy);
+      ctx.strokeStyle = isActive ? t.color + '66' : '#162030';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(sx, sy, 14, 0, Math.PI * 2);
+      ctx.fillStyle = '#080e1a';
+      ctx.fill();
+      ctx.strokeStyle = isActive ? t.color + '88' : '#182840';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.fillStyle = isActive ? '#b8cce0' : '#3a5570';
+      ctx.textAlign = 'center';
+      var label = sub.name.length > 8 ? sub.name.slice(0, 8) : sub.name;
+      ctx.fillText(label, sx, sy + 3);
+    });
+  });
+
+  // Draw particles
+  animParticles.forEach(function(p) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + Math.round(p.alpha * 255).toString(16).padStart(2, '0');
+    ctx.fill();
+  });
+}
+
+function animateBroadcast() {
+  var canvas = document.getElementById('vizCanvas');
+  var W = canvas.offsetWidth;
+  var H = canvas.offsetHeight;
+  var keys = Object.keys(topics);
+  if (!activeTopic || !keys.length) return;
+
+  var ti = keys.indexOf(activeTopic);
+  var topicSpacing = H / (keys.length + 1);
+  var ty = topicSpacing * (ti + 1);
+  var t = topics[activeTopic];
+
+  var particles = [];
+  var subSpacing = Math.min(36, (H - 40) / Math.max(1, t.subscribers.length + 1));
+  var subStartY = ty - (t.subscribers.length - 1) * subSpacing / 2;
+
+  t.subscribers.forEach(function(sub, si) {
+    var sx = W - 80;
+    var sy = subStartY + si * subSpacing;
+    particles.push({ x: 200, y: ty, tx: sx, ty: sy, color: t.color, alpha: 1, progress: 0 });
+  });
+
+  // Also one from pubsub to topic
+  particles.push({ x: 60, y: H / 2, tx: 200, ty: ty, color: '#22d3ee', alpha: 1, progress: 0 });
+
+  animParticles = particles;
+
+  var steps = 0;
+  function frame() {
+    steps++;
+    animParticles.forEach(function(p) {
+      p.progress = Math.min(1, p.progress + 0.05);
+      p.x = p.x + (p.tx - p.x) * 0.08;
+      p.y = p.y + (p.ty - p.y) * 0.08;
+      p.alpha = 1 - p.progress;
+    });
+    drawGraph();
+    if (steps < 40) animFrame = requestAnimationFrame(frame);
+    else { animParticles = []; drawGraph(); }
+  }
+
+  if (animFrame) cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(frame);
+}
+
+function loadPreset() {
+  topics = {};
+  activeTopic = null;
+  pidCounter = 1000;
+  topics['room:lobby'] = { color: '#22d3ee', subscribers: [
+    { pid: '#PID<0.1.1000>', name: 'UserSocket #12' },
+    { pid: '#PID<0.1.1001>', name: 'UserSocket #34' },
+    { pid: '#PID<0.1.1002>', name: 'LiveView #56' }
+  ]};
+  topics['user:alice'] = { color: '#a78bfa', subscribers: [
+    { pid: '#PID<0.1.1003>', name: 'NotifWorker' }
+  ]};
+  topics['system:alerts'] = { color: '#f97316', subscribers: [
+    { pid: '#PID<0.1.1004>', name: 'AlertHandler' },
+    { pid: '#PID<0.1.1005>', name: 'LogWorker' }
+  ]};
+  pidCounter = 1006;
+  activeTopic = 'room:lobby';
+  renderTopics();
+  renderSubs();
+  drawGraph();
+}
+
+function resetSim() {
+  topics = {};
+  activeTopic = null;
+  pidCounter = 1000;
+  broadcastCount = 0;
+  animParticles = [];
+  document.getElementById('messageLog').innerHTML = '<div class="log-empty">Broadcast a message to see delivery log</div>';
+  document.getElementById('logCount').textContent = '0 broadcasts';
+  renderTopics();
+  renderSubs();
+  drawGraph();
+}
+
+function toggleFaq(btn) {
+  btn.parentElement.classList.toggle('open');
+}
+
+// ─── INIT ───
+window.addEventListener('resize', drawGraph);
+drawGraph();
+</script>
+
 </body>
 </html>
